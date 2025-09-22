@@ -1,0 +1,30 @@
+[project]
+name = "ome"
+version = "0.1.0"
+description = "Oh My Event - Just a busybox for Event Camera"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = ["h5py>=3.14.0", "hdf5plugin>=5.1.0"]
+
+[tool.ruff]
+line-length = 120
+
+[[tool.uv.index]]
+url = "https://mirrors.aliyun.com/pypi/simple"
+default = true
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+tools = [
+    "cupy-cuda12x>=13.6.0",
+    "matplotlib>=3.10.6",
+    "numba>=0.62.0",
+    "nvidia-cuda-nvrtc-cu12==12.8.*",
+    "nvidia-cuda-runtime-cu12==12.8.*",
+    "opencv-python>=4.12.0.88",
+    "pyqt6>=6.9.1",
+    "tyro>=0.9.32",
+]
