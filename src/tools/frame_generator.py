@@ -1,8 +1,5 @@
-import cupy as cp
 import numba
 import numpy as np
-
-import tools.nvidia_cdll_hook  # noqa: F401
 
 
 class FrameGenerator:
@@ -115,51 +112,3 @@ def events_window_to_grayscale(
     frame = np.clip(255 * tonemapping_factor * np.exp(log_i), 0, 255).astype(np.uint8)
 
     return frame, log_i, last_t
-
-
-@numba.njit(parallel=True)
-def accumulate_events(x, y, width, height):
-    frame = np.zeros((height, width), dtype=np.uint32)
-    for i in numba.prange(x.size):  # ty: ignore[not-iterable]
-        if 0 <= x[i] < width and 0 <= y[i] < height:
-            frame[y[i], x[i]] += 1
-    return frame
-
-
-def events_to_grayscale_count_numba(x, y, width=1280, height=720):
-    frame = accumulate_events(x, y, width, height)
-    if frame.max() > 0:
-        frame = (np.log1p(frame) * 255.0 / np.log1p(frame.max())).astype(np.uint8)
-    return frame
-
-
-_accumulate_kernel = r"""
-extern "C" __global__
-void accumulate_events(const unsigned int *coords, unsigned int *frame, int N) {
-    int idx = blockDim.x * blockIdx.x + threadIdx.x;
-    if (idx >= N) return;
-    atomicAdd(&frame[coords[idx]], 1);
-}
-"""
-
-accumulate_kernel = cp.RawKernel(_accumulate_kernel, "accumulate_events")
-
-
-def events_to_grayscale_count_cuda(x, y, width=1280, height=720, normalize=True):
-    x_gpu = cp.asarray(x, dtype=cp.uint16)
-    y_gpu = cp.asarray(y, dtype=cp.uint16)
-
-    frame_gpu = cp.zeros((height, width), dtype=cp.uint32)
-    coords = y_gpu.astype(cp.uint32) * width + x_gpu
-
-    threads = 256
-    blocks = (coords.size + threads - 1) // threads
-
-    accumulate_kernel((blocks,), (threads,), (coords, frame_gpu.ravel(), coords.size))
-
-    # frame_gpu[frame_gpu > 3] = 0 # this actually seems ok, crazy...
-
-    if normalize and frame_gpu.max() > 0:
-        frame_gpu = (cp.log1p(frame_gpu) * 255.0 / cp.log1p(frame_gpu.max())).astype(cp.uint8)
-
-    return cp.asnumpy(frame_gpu)

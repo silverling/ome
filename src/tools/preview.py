@@ -3,8 +3,8 @@ from pathlib import Path
 import tyro
 
 from ome.io.reader.tumvie import TUMVIEReader
-from tools.frame_generator import events_to_grayscale_count_cuda
-from tools.timer import Timer
+from ome.repr.frame import events_to_grayscale_count_cuda
+from ome.utils.timer import Timer
 
 
 def main(
@@ -37,7 +37,7 @@ def main(
 
         max_events = max(max_events, len(x))
         timer.tick()
-        frame = events_to_grayscale_count_cuda(x, y)
+        frame = events_to_grayscale_count_cuda(x, y, event_reader.width, event_reader.height)
         elapsed = timer.elapsed()
 
         print(f"[{idx}/{len(ticks)}] Elapsed time: {elapsed * 1e3:.2f} ms")
