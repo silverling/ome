@@ -12,8 +12,6 @@ class TUMVIEReader(BaseReader):
         self,
         file: str | Path,
     ):
-        super().__init__()
-
         self.h5 = h5py.File(file, "r")
 
         self.x: h5py.Dataset = self.h5["/events/x"]  # uint16, width: 1280
@@ -26,21 +24,3 @@ class TUMVIEReader(BaseReader):
         self.width = 1280
         self.height = 720
         self.sensor_size = (self.width, self.height)
-
-    def slice(self, start: int, end: int):
-        return (
-            self.x[start:end],
-            self.y[start:end],
-            self.p[start:end],
-            self.t[start:end],
-        )
-
-    def duration(self, start_ms: int, length_ms: int):
-        """Read a duration (ms) of events."""
-        if start_ms > self.max_ms:
-            raise ValueError(f"start_ms must be less than {self.max_ms}.")
-
-        end_ms = min(start_ms + length_ms, self.max_ms)
-        start = self.ms_to_idx[start_ms]
-        end = self.ms_to_idx[end_ms]
-        return self.slice(start, end)
