@@ -23,4 +23,5 @@ class M3EDReader(BaseReader):
 
         self.width = 1280
         self.height = 720
-        self.sensor_size = (self.width, self.height)
+
+        super().__post_init__()

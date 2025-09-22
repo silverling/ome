@@ -2,6 +2,10 @@ from abc import ABC
 
 
 class BaseReader(ABC):
+    def __post_init__(self):
+        self.max_ms = len(self.ms_to_idx) - 1
+        self.sensor_size = (self.width, self.height)
+
     def slice(self, start: int, end: int):
         return (
             self.x[start:end],

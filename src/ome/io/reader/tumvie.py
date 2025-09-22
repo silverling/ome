@@ -19,8 +19,8 @@ class TUMVIEReader(BaseReader):
         self.p: h5py.Dataset = self.h5["/events/p"]  # int8, polarity, 0 or 1
         self.t: h5py.Dataset = self.h5["/events/t"]  # int64, microseconds, start from 0
         self.ms_to_idx: np.ndarray = self.h5["/ms_to_idx"][:]  # uint64, (N,)
-        self.max_ms = len(self.ms_to_idx) - 1
 
         self.width = 1280
         self.height = 720
-        self.sensor_size = (self.width, self.height)
+
+        super().__post_init__()

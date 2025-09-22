@@ -2,7 +2,6 @@ from pathlib import Path
 
 import tyro
 
-from ome.io.reader.tumvie import TUMVIEReader
 from ome.repr.frame import events_to_grayscale_count_cuda
 from ome.utils.timer import Timer
 
@@ -17,7 +16,13 @@ def main(
     display: bool = False,
 ):
     if reader == "tumvie":
+        from ome.io.reader.tumvie import TUMVIEReader
+
         event_reader = TUMVIEReader(file)
+    elif reader == "m3ed":
+        from ome.io.reader.m3ed import M3EDReader
+
+        event_reader = M3EDReader(file)
     else:
         raise ValueError(f"Unknown reader type: {reader}")
 
@@ -29,18 +34,16 @@ def main(
         ms_per_frame_float = ms_per_frame if fps is None else 1000 / fps
         window = tools.window.Window(file.name, ms_per_frame_float)
 
-    max_events = 0
-    timer = Timer()
     ticks = list(range(0, event_reader.max_ms, ms_per_frame))
-    for idx, tick in enumerate(ticks, start=1):
-        x, y, p, t = event_reader.duration(tick, ms_per_frame)
 
-        max_events = max(max_events, len(x))
+    timer = Timer()
+    for idx, tick in enumerate(ticks, start=1):
         timer.tick()
-        frame = events_to_grayscale_count_cuda(x, y, event_reader.width, event_reader.height)
+        x, y, p, t = event_reader.duration(tick, ms_per_frame)
+        frame = events_to_grayscale_count_cuda(x, y, width, height)
         elapsed = timer.elapsed()
 
-        print(f"[{idx}/{len(ticks)}] Elapsed time: {elapsed * 1e3:.2f} ms")
+        print(f"[{idx}/{len(ticks)}] | Number of events: {len(x)} | Elapsed time: {elapsed * 1e3:.2f} ms")
 
         if display and window.show(frame, elapsed * 1e3):
             break
