@@ -6,9 +6,10 @@ class Timer:
         pass
 
     def tick(self):
-        self.tic = time.perf_counter()
+        self._tic = time.perf_counter()
 
     def elapsed(self):
-        elapsed = time.perf_counter() - self.tic
-        self.tic = time.perf_counter()
+        """Return the elapsed time (in second) since the last tick() or elapsed() call, and reset the timer."""
+        elapsed = time.perf_counter() - self._tic
+        self._tic = time.perf_counter()
         return elapsed
