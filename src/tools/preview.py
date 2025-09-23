@@ -40,7 +40,7 @@ def main(
     for idx, tick in enumerate(ticks, start=1):
         timer.tick()
         x, y, p, t = event_reader.duration(tick, ms_per_frame)
-        frame = events_to_grayscale_count_cuda(x, y, width, height)
+        frame = events_to_grayscale_count_cuda(x, y, width=width, height=height)
         elapsed = timer.elapsed()
 
         print(f"[{idx}/{len(ticks)}] | Number of events: {len(x)} | Elapsed time: {elapsed * 1e3:.2f} ms")

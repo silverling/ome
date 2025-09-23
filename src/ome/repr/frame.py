@@ -23,7 +23,7 @@ void accumulate_events(const unsigned int *coords, unsigned int *frame, int N) {
 _accumulate_events_cuda = cp.RawKernel(_accumulate_kernel, "accumulate_events")
 
 
-def events_to_grayscale_count_cuda(x, y, width, height, normalize=True):
+def events_to_grayscale_count_cuda(x, y, /, *, width, height, normalize=True):
     x_gpu = cp.asarray(x, dtype=cp.uint16)
     y_gpu = cp.asarray(y, dtype=cp.uint16)
 
@@ -50,7 +50,7 @@ def _accumulate_events_numba(x, y, width, height):
     return frame
 
 
-def events_to_grayscale_count_numba(x, y, width, height):
+def events_to_grayscale_count_numba(x, y, /, *, width, height):
     frame = _accumulate_events_numba(x, y, width, height)
     if frame.max() > 0:
         frame = (np.log1p(frame) * 255.0 / np.log1p(frame.max())).astype(np.uint8)
