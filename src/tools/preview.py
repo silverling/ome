@@ -8,8 +8,6 @@ from ome.utils.timer import Timer
 
 def main(
     file: Path,
-    width: int,
-    height: int,
     reader: str,
     ms_per_frame: int = 33,
     fps: float | None = None,
@@ -23,6 +21,14 @@ def main(
         from ome.io.reader.m3ed import M3EDReader
 
         event_reader = M3EDReader(file)
+    elif reader == "vector":
+        from ome.io.reader.vector import VECTORReader
+
+        event_reader = VECTORReader(file)
+    elif reader == "dsec":
+        from ome.io.reader.dsec import DSECRReader
+
+        event_reader = DSECRReader(file)
     else:
         raise ValueError(f"Unknown reader type: {reader}")
 
@@ -40,7 +46,7 @@ def main(
     for idx, tick in enumerate(ticks, start=1):
         timer.tick()
         x, y, p, t = event_reader.duration(tick, ms_per_frame)
-        frame = events_to_grayscale_count_cuda(x, y, width=width, height=height)
+        frame = events_to_grayscale_count_cuda(x, y, width=event_reader.width, height=event_reader.height)
         elapsed = timer.elapsed()
 
         print(f"[{idx}/{len(ticks)}] | Number of events: {len(x)} | Elapsed time: {elapsed * 1e3:.2f} ms")
