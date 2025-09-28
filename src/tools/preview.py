@@ -29,6 +29,10 @@ def main(
         from ome.io.reader.dsec import DSECRReader
 
         event_reader = DSECRReader(file)
+    elif reader == "mvsec":
+        from ome.io.reader.mvsec import MVSECReader
+
+        event_reader = MVSECReader(file)
     else:
         raise ValueError(f"Unknown reader type: {reader}")
 
