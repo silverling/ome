@@ -14,12 +14,12 @@ class BaseReader(ABC):
             self.t[start:end],
         )
 
-    def duration(self, start_ms: int, length_ms: int):
+    def duration(self, start_ms: int, duration_ms: int):
         """Read a duration (ms) of events."""
         if start_ms > self.max_ms:
             raise ValueError(f"start_ms must be less than {self.max_ms}.")
 
-        end_ms = min(start_ms + length_ms, self.max_ms)
+        end_ms = min(start_ms + duration_ms, self.max_ms)
         start = self.ms_to_idx[start_ms]
         end = self.ms_to_idx[end_ms]
         return self.slice(start, end)
