@@ -1,6 +1,7 @@
 import numpy as np
 
 from ome.io.reader.base import BaseReader
+from ome.utils.sync import nearest_idx
 
 
 class UniformSampler:
@@ -53,3 +54,20 @@ class UniformSampler:
             return all_timestamps + self.duration_ms
         else:
             raise ValueError(f"Invalid anchor: {anchor}. Must be 'start', 'middle', or 'end'.")
+
+    def sync_with(self, wallclock_times: np.ndarray, anchor: str = "end") -> np.ndarray:
+        """Get the nearest indices in the given wallclock times of the samples.
+
+        Args:
+            wallclock_times (np.ndarray): An array of wallclock times (in seconds) to sync with.
+            anchor (str): The anchor point of the sample to consider for synchronization.
+                          Can be 'start', 'middle', or 'end'. Default is 'end'.
+
+        Returns:
+            np.ndarray: A mapping from sample indices to the nearest indices in the given wallclock times.
+        """
+        sample_timestamps = self.get_all_timestamps(anchor=anchor)  # in milliseconds
+        sample_indices = self.reader.ms_to_idx[sample_timestamps]  # map to event indices
+        sample_wallclock_times = self.reader.t_wallclock[sample_indices]  # in seconds
+
+        return nearest_idx(wallclock_times, sample_wallclock_times)
