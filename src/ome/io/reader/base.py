@@ -1,8 +1,18 @@
 from abc import ABC
 
+import numpy as np
+
 
 class BaseReader(ABC):
     def __post_init__(self):
+        # Construct ms_to_idx if not already present
+        if not hasattr(self, "ms_to_idx"):
+            self.ms_to_idx = np.searchsorted(
+                self.t,
+                np.arange(0, self.t[-1], 1000),
+                side="left",
+            )
+
         self.max_ms = len(self.ms_to_idx) - 1
         self.sensor_size = (self.width, self.height)
 
