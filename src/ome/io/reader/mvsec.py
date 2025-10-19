@@ -32,7 +32,7 @@ class MVSECReader(BaseReader):
         self.ms_to_idx = np.searchsorted(
             self.t,
             np.arange(0, self.t[-1], 1000),
-            side="right",
+            side="left",
         )
 
         self.width = 346
