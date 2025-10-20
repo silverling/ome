@@ -1,6 +1,6 @@
 [project]
 name = "ome"
-version = "0.1.0"
+version = "0.1.1"
 description = "Oh My Event - Just a busybox for Event Camera"
 readme = "README.md"
 requires-python = ">=3.12"
