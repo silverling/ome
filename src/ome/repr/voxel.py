@@ -80,4 +80,5 @@ def events_to_voxel_cuda(x, y, p, t, width, height, n_bins=3):
     idx_right = x[valid_right] + y[valid_right] * width + (ti[valid_right] + 1) * width * height
     cpx.scatter_add(voxel_grid, idx_right, contrib_right[valid_right])
 
-    return voxel_grid.reshape((n_bins, height, width))
+    voxel_grid = voxel_grid.reshape((n_bins, height, width))
+    return cp.asnumpy(voxel_grid)
