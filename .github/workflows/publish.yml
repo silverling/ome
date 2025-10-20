@@ -11,6 +11,7 @@ jobs:
     uses: ./.github/workflows/build.yml
 
   publish:
+    environment: production
     runs-on: ubuntu-latest
     steps:
       - name: Download artifacts
