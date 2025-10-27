@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import cv2
 import h5py
 import hdf5plugin  # noqa
 import numpy as np
@@ -34,7 +35,9 @@ class DSECReader(BaseReader):
 
         # Load rectify map if provided
         if event_rectify_map_file is not None:
-            self.rectify_map = h5py.File(event_rectify_map_file, "r")["/rectify_map"][:]  # (H, W, 2), float32
+            rectify_map = h5py.File(event_rectify_map_file, "r")["/rectify_map"][:]  # (H, W, 2), float32
+            self.calib_map_x = rectify_map[:, :, 0]
+            self.calib_map_y = rectify_map[:, :, 1]
 
         assert not ((image_folder is None) ^ (timestamps_txt is None)), (
             "Both image_folder and timestamps_txt should be provided or both should be None."
@@ -46,3 +49,16 @@ class DSECReader(BaseReader):
             self.rgb_wallclock = np.loadtxt(timestamps_txt, dtype=np.float64) / 1e6  # (N,), float64, seconds, wallclock time
 
         super().__post_init__()
+
+    def rectify_voxel(self, voxel: np.ndarray) -> np.ndarray:
+        """Rectify event voxel grid using the calibration rectify map.
+
+        Args:
+            voxel (np.ndarray): (N_bins, H, W) event voxel grid.
+
+        Returns:
+            np.ndarray: (N_bins, H, W) rectified event voxel grid.
+        """
+        voxel = cv2.remap(voxel, self.calib_map_x, self.calib_map_y, interpolation=cv2.INTER_LINEAR)
+
+        return voxel
