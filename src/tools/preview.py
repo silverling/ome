@@ -26,9 +26,9 @@ def main(
 
         event_reader = VECTORReader(file)
     elif reader == "dsec":
-        from ome.io.reader.dsec import DSECRReader
+        from ome.io.reader.dsec import DSECReader
 
-        event_reader = DSECRReader(file)
+        event_reader = DSECReader(file)
     elif reader == "mvsec":
         from ome.io.reader.mvsec import MVSECReader
 
