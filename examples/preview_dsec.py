@@ -18,7 +18,7 @@ sampler = UniformSampler(reader, sample_rate=1, duration_ms=33)
 
 sample_idx_to_rgb_idx = sampler.sync_with(reader.rgb_wallclock[:], anchor="middle")
 ms_per_frame = 33
-window = Window("MVSEC Preview", ms_per_frame)
+window = Window("DSEC Preview", ms_per_frame)
 timer = Timer()
 frame_timer = Timer()
 voxel_timer = Timer()
@@ -27,7 +27,7 @@ map_x = reader.rectify_map[:, :, 0]
 map_y = reader.rectify_map[:, :, 1]
 
 try:
-    for idx, timestamp in enumerate(sampler.get_all_timestamps(anchor="middle")):
+    for idx, timestamp in enumerate(sampler.get_all_timestamps(anchor="start")):
         timer.tick()
         x, y, p, t = sampler[idx]
 
