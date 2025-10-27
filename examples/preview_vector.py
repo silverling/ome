@@ -1,25 +1,24 @@
 import cv2
 import numpy as np
 
-from ome.io.reader.tumvie import TUMVIEReader
+from ome.io.reader.vector import VECTORReader
 from ome.io.sample.uniform import UniformSampler
 from ome.repr.frame import events_to_grayscale_count_cuda
 from ome.repr.voxel import events_to_voxel_cuda
 from ome.utils.timer import Timer
-from ome.utils.transforms import resize_and_center_crop
+from ome.utils.transforms import contain_into
 from tools.window import Window
 
-reader = TUMVIEReader(
-    "/var/mnt/data/datasets/tum-vie/bike-easy/bike-easy-events_left.h5",
-    image_folder="/var/mnt/data/datasets/tum-vie/bike-easy/left_images",
-    timestamps_txt="/var/mnt/data/datasets/tum-vie/bike-easy/left_images/image_timestamps_left.txt",
-    calib_file="/var/mnt/data/datasets/tum-vie/camera-calibrationB.json",
+reader = VECTORReader(
+    "/var/mnt/data/datasets/vector/corridors-dolly/corridors_dolly1.synced.left_event.hdf5",
+    image_folder="/var/mnt/data/datasets/vector/corridors-dolly/corridors_dolly1.synced.left_camera",
+    timestamps_txt="/var/mnt/data/datasets/vector/corridors-dolly/corridors_dolly1.synced.left_camera/timestamp.txt",
 )
 sampler = UniformSampler(reader, sample_rate=1, duration_ms=33)
 
-sample_idx_to_grayscale_idx = sampler.sync_with(reader.grayscale_t[:], use_t=True, anchor="end")
+sample_idx_to_grayscale_idx = sampler.sync_with(reader.grayscale_wallclock[:], anchor="middle")
 ms_per_frame = 33
-window = Window("TUM-VIE Preview", ms_per_frame)
+window = Window("VECTor Preview", ms_per_frame)
 timer = Timer()
 frame_timer = Timer()
 voxel_timer = Timer()
@@ -48,7 +47,7 @@ try:
         grayscale_file = reader.grayscale_files[grayscale_idx]
         grayscale_image = cv2.imread(str(grayscale_file), cv2.IMREAD_GRAYSCALE)
         grayscale_image = reader.rectify(grayscale_image, camera="left_grayscale")
-        grayscale_image = resize_and_center_crop(grayscale_image, (reader.height, reader.width))
+        grayscale_image = contain_into(grayscale_image, (reader.height, reader.width))
 
         # Concatenate event frame and grayscale image horizontally
         combined_frame = np.hstack(
