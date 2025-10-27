@@ -55,11 +55,13 @@ class UniformSampler:
         else:
             raise ValueError(f"Invalid anchor: {anchor}. Must be 'start', 'middle', or 'end'.")
 
-    def sync_with(self, wallclock_times: np.ndarray, anchor: str = "end") -> np.ndarray:
+    def sync_with(self, wallclock_times: np.ndarray, *, use_t: bool = False, anchor: str = "end") -> np.ndarray:
         """Get the nearest indices in the given wallclock times of the samples.
 
         Args:
             wallclock_times (np.ndarray): An array of wallclock times (in seconds) to sync with.
+            use_t (bool): Whether to use the event timestamps from reader.t instead of wallclock times.
+                          Default is False.
             anchor (str): The anchor point of the sample to consider for synchronization.
                           Can be 'start', 'middle', or 'end'. Default is 'end'.
 
@@ -68,6 +70,10 @@ class UniformSampler:
         """
         sample_timestamps = self.get_all_timestamps(anchor=anchor)  # in milliseconds
         sample_indices = self.reader.ms_to_idx[sample_timestamps]  # map to event indices
-        sample_wallclock_times = self.reader.t_wallclock[sample_indices]  # in seconds
+        if use_t:
+            # in microseconds, make sure wallclock_times provided is also in microseconds
+            sample_wallclock_times = self.reader.t[sample_indices]
+        else:
+            sample_wallclock_times = self.reader.t_wallclock[sample_indices]  # in seconds
 
         return nearest_idx(wallclock_times, sample_wallclock_times)
