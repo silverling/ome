@@ -14,6 +14,10 @@ def events_to_voxel(x, y, p, t, width, height, n_bins=3):
 
     Return shape is (n_bins, height, width)
     """
+    assert len(x) == len(y) == len(p) == len(t), "All input arrays must have the same length"
+
+    if len(x) == 0:
+        return np.zeros((n_bins, height, width), np.float32)
 
     voxel_grid = np.zeros((n_bins, height, width), np.float32).ravel()
 
@@ -51,6 +55,11 @@ def events_to_voxel(x, y, p, t, width, height, n_bins=3):
 
 def events_to_voxel_cuda(x, y, p, t, width, height, n_bins=3):
     """Voxel grid with bilinear interpolation in time domain (CuPy GPU version)."""
+
+    assert len(x) == len(y) == len(p) == len(t), "All input arrays must have the same length"
+
+    if len(x) == 0:
+        return np.zeros((n_bins, height, width), np.float32)
 
     # move everything to GPU
     x = cp.asarray(x, dtype=cp.uint32)
